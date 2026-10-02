@@ -23,6 +23,22 @@ export async function recordAttempt(mode: Mode, problemId: string, correct: bool
   if (error) console.error("record_attempt failed:", error.message);
 }
 
+/** Ids of the problems the current user has already solved today (UTC). */
+export async function getSolvedToday(): Promise<Set<string>> {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from("results")
+    .select("problem_id")
+    .eq("day", today)
+    .not("solved_at", "is", null);
+  if (error) {
+    console.error("getSolvedToday failed:", error.message);
+    return new Set();
+  }
+  return new Set(data.map((row) => row.problem_id as string));
+}
+
 /** The top `limit` players for `period`, plus the current user's row if they're ranked lower. */
 export async function getLeaderboard(period: LeaderboardPeriod = "all", limit = 20): Promise<LeaderboardRow[]> {
   const supabase = await createClient();

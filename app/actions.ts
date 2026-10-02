@@ -1,8 +1,8 @@
 "use server";
 
 import { isCorrect, parseNumericAnswer } from "@/lib/answer";
-import { recordAttempt } from "@/lib/leaderboard";
-import { findProblem, getDailyMode } from "@/lib/problems";
+import { getSolvedToday, recordAttempt } from "@/lib/leaderboard";
+import { findProblem, formatAnswer, getDailyMode, solvedMessage } from "@/lib/problems";
 import { getCurrentUser } from "@/lib/supabase/user";
 
 export type CheckState =
@@ -25,14 +25,18 @@ export async function checkAnswer(
   const value = parseNumericAnswer(raw);
   if (value === null) return { status: "invalid", value: raw, message: "Enter a number." };
 
-  const correct = isCorrect(value, problem.answer);
   // Only today's problems count toward the leaderboard. A page left open past 00:00 UTC still checks answers.
   const mode = getDailyMode(problem.id);
+  // Once today's problem is solved it stays solved, e.g. when a stale tab submits again.
+  if (mode && (await getSolvedToday()).has(problem.id)) {
+    return { status: "correct", value: String(problem.answer), message: solvedMessage(problem) };
+  }
+
+  const correct = isCorrect(value, problem.answer);
   if (mode) await recordAttempt(mode, problem.id, correct);
 
   if (!correct) {
     return { status: "incorrect", value: raw, message: "Not quite. Try again." };
   }
-  const unit = problem.unit ? (problem.unit === "%" ? "%" : ` ${problem.unit}`) : "";
-  return { status: "correct", value: raw, message: `Correct! ${problem.answer}${unit}.` };
+  return { status: "correct", value: raw, message: `Correct! ${formatAnswer(problem)}.` };
 }

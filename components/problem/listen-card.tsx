@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { HeadphonesIcon } from "@/components/ui/icons";
 import { PlayButton } from "@/components/ui/play-button";
-import type { PublicProblem } from "@/lib/problems";
+import type { PublicProblem, SolvedProblem } from "@/lib/problems";
 import { AnswerForm } from "./answer-form";
 
-export function ListenCard({ problem }: { problem: PublicProblem }) {
+export function ListenCard({ problem, solved }: { problem: PublicProblem; solved?: SolvedProblem }) {
   const [playing, setPlaying] = useState(false);
   const [unsupported, setUnsupported] = useState(false);
 
@@ -51,7 +51,7 @@ export function ListenCard({ problem }: { problem: PublicProblem }) {
           </p>
         )}
       </div>
-      <AnswerForm problemId={problem.id} label="Answer to the listening problem" />
+      <AnswerForm problemId={problem.id} solved={solved} label="Answer to the listening problem" />
     </Card>
   );
 }

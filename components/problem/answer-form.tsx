@@ -4,6 +4,7 @@ import { useActionState, useId } from "react";
 import { checkAnswer, type CheckState } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { TextInput, type InputTone } from "@/components/ui/text-input";
+import type { SolvedProblem } from "@/lib/problems";
 
 const initialState: CheckState = { status: "idle", value: "" };
 
@@ -14,9 +15,14 @@ const tones: Record<CheckState["status"], InputTone> = {
   correct: "success",
 };
 
-export function AnswerForm({ problemId, label }: { problemId: string; label: string }) {
-  const [state, formAction, pending] = useActionState(checkAnswer.bind(null, problemId), initialState);
+/** A problem solved earlier today (`solved`) or just now stays locked, so it can't be answered again. */
+export function AnswerForm({ problemId, label, solved }: { problemId: string; label: string; solved?: SolvedProblem }) {
+  const [state, formAction, pending] = useActionState<CheckState, FormData>(
+    checkAnswer.bind(null, problemId),
+    solved ? { status: "correct", value: solved.answer, message: solved.message } : initialState,
+  );
   const feedbackId = useId();
+  const done = state.status === "correct";
 
   return (
     <form action={formAction} className="mt-auto flex flex-col gap-5 pt-8">
@@ -30,10 +36,11 @@ export function AnswerForm({ problemId, label }: { problemId: string; label: str
         aria-describedby={feedbackId}
         aria-invalid={state.status === "invalid" || state.status === "incorrect"}
         tone={tones[state.status]}
+        readOnly={done}
         required
       />
-      <Button type="submit" disabled={pending}>
-        {pending ? "Checking…" : "Check answer"}
+      <Button type="submit" disabled={pending || done}>
+        {done ? "Solved" : pending ? "Checking…" : "Check answer"}
       </Button>
       <p
         id={feedbackId}

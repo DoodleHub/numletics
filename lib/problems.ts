@@ -61,3 +61,24 @@ export function findProblem(id: string): Problem | undefined {
 export function getDailyMode(id: string, date = new Date()): Mode | null {
   return (Object.keys(BANKS) as Mode[]).find((mode) => getDailyProblem(mode, date).id === id) ?? null;
 }
+
+/** The answer with its unit, e.g. "20 minutes" or "75%". Only for users who have solved the problem. */
+export function formatAnswer(problem: Problem): string {
+  const unit = problem.unit ? (problem.unit === "%" ? "%" : ` ${problem.unit}`) : "";
+  return `${problem.answer}${unit}`;
+}
+
+/** Feedback for a problem the user solved earlier today. */
+export function solvedMessage(problem: Problem): string {
+  return `Solved! ${formatAnswer(problem)}. Come back tomorrow for a new one.`;
+}
+
+/** What the answer form shows for a problem already solved today. `answer` is the bare number, as a user would type it. */
+export type SolvedProblem = { answer: string; message: string };
+
+/** The solved state for one of today's problems, or undefined if it isn't solved. */
+export function getSolvedState(id: string, solvedIds: Set<string>): SolvedProblem | undefined {
+  const problem = findProblem(id);
+  if (!problem || !solvedIds.has(id)) return undefined;
+  return { answer: String(problem.answer), message: solvedMessage(problem) };
+}
