@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Numletics design tokens — see DESIGN_SYSTEM.md.
+ * Values are sampled from ss-mocks/main-design.png. Light theme only.
+ */
+@theme {
+  /* Color */
+  --color-canvas: #fefdf8; /* page background, warm off-white */
+  --color-surface: #ffffff; /* cards, inputs */
+  --color-ink: #0f1216; /* primary text, buttons, play button */
+  --color-muted: #4b4e5a; /* captions, footer */
+  --color-subtle: #7c7d88; /* placeholders */
+  --color-line: #e5e5e6; /* card borders */
+  --color-line-strong: #c8c8ce; /* input borders */
+  --color-accent: #bef62e; /* brand lime: logo, play glyph */
+  --color-success: #2f7a1f;
+  --color-danger: #c2362b;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Typography */
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --text-display: 4.5rem; /* 72px — page headline */
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-title: 2.3125rem; /* 37px — card titles */
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 700;
+
+  --text-wordmark: 1.9375rem; /* 31px — logo wordmark */
+  --text-wordmark--line-height: 1;
+  --text-wordmark--letter-spacing: -0.01em;
+  --text-wordmark--font-weight: 700;
+
+  --text-problem: 1.875rem; /* 30px — problem statement */
+  --text-problem--line-height: 1.47;
+
+  --text-control: 1.625rem; /* 26px — inputs and buttons */
+  --text-control--line-height: 1.2;
+
+  --text-caption: 1.3125rem; /* 21px — captions, footer, feedback */
+  --text-caption--line-height: 1.4;
+
+  /* Shape */
+  --radius-card: 1rem; /* 16px */
+  --radius-control: 0.5rem; /* 8px */
+
+  /* Size */
+  --spacing-control: 4.125rem; /* 66px — input & button height */
+  --spacing-play: 7rem; /* 112px — play button diameter */
+  --container-page: 78.75rem; /* 1260px — card grid width */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
 }
