@@ -52,6 +52,7 @@
   --spacing-control: 4.125rem; /* 66px — input & button height */
   --spacing-play: 7rem; /* 112px — play button diameter */
   --container-page: 78.75rem; /* 1260px — card grid width */
+  --container-auth: 32rem; /* 512px — sign-in and sign-up card width */
 }
 
 body {

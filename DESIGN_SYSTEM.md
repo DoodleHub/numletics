@@ -41,6 +41,7 @@ Font: **Figtree** (`next/font/google`, exposed as `--font-figtree`, mapped to `f
 - Card padding is 45px top, 38px sides and 34px bottom on desktop. Header-to-content gap is 50px, and input-to-button gap is 20px.
 - Vertical rhythm on desktop: about 50px between headline and cards, and about 50px between cards and footer.
 - Card borders are 1px `line`. Cards have no shadow.
+- Auth pages (`/login`, `/signup`) center a single card in `max-w-auth` (512px).
 
 ## Iconography
 

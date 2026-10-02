@@ -2,6 +2,7 @@
 
 import { isCorrect, parseNumericAnswer } from "@/lib/answer";
 import { findProblem } from "@/lib/problems";
+import { getCurrentUser } from "@/lib/supabase/user";
 
 export type CheckState =
   | { status: "idle"; value: string }
@@ -12,6 +13,9 @@ export async function checkAnswer(
   _prev: CheckState,
   formData: FormData,
 ): Promise<CheckState> {
+  // Server Actions are callable directly, so check auth here too, not only on the page.
+  if (!(await getCurrentUser())) return { status: "invalid", value: "", message: "Sign in to check your answer." };
+
   const problem = findProblem(problemId);
   if (!problem) return { status: "invalid", value: "", message: "This problem is no longer available. Refresh the page." };
 
