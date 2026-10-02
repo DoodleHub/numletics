@@ -13,7 +13,7 @@ export function CardHeader({
   title,
 }: {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
-  title: string;
+  title: ReactNode;
 }) {
   return (
     <h2 className="flex items-center gap-4 text-[1.625rem] font-bold leading-tight tracking-[-0.01em] md:gap-6 md:text-title">

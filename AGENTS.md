@@ -14,30 +14,31 @@ Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4, TypeScript
 
 ## App logic
 
-1. **Auth.** Every page requires a signed-in user except `/login` and `/signup`. `proxy.ts` refreshes the Supabase session on each request and redirects signed-out visitors to `/login`. That redirect is only optimistic, so `app/page.tsx` also calls `requireUser()` and `checkAnswer` calls `getCurrentUser()` (both in `lib/supabase/user.ts`, which verifies the JWT with `getClaims()`). Sign in, sign up and sign out are Server Actions in `app/auth/actions.ts`, and they validate email, password and (on sign-up) display name on the server. The display name goes into sign-up metadata, and the `on_auth_user_created` trigger copies it into `public.profiles`. Display names are unique ignoring case; `signUp` checks with the `display_name_available` RPC first. "Confirm email" is disabled in Supabase, so sign-up signs the user in right away and there is no email-confirmation route or "check your email" state.
-2. `app/page.tsx` is a dynamic Server Component. It calls `await connection()` so it renders per request, which keeps the daily rotation on the current date instead of the build date. It then calls `getDailyProblem("read")` and `getDailyProblem("listen")`.
+1. **Auth.** Every page requires a signed-in user except `/login` and `/signup`. `proxy.ts` refreshes the Supabase session on each request and redirects signed-out visitors to `/login`. That redirect is only optimistic, so every signed-in page also calls `requireUser()` and `checkAnswer` calls `getCurrentUser()` (both in `lib/supabase/user.ts`, which verifies the JWT with `getClaims()`). Sign in, sign up and sign out are Server Actions in `app/auth/actions.ts`, and they validate email, password and (on sign-up) display name on the server. The display name goes into sign-up metadata, and the `on_auth_user_created` trigger copies it into `public.profiles`. Display names are unique ignoring case; `signUp` checks with the `display_name_available` RPC first. "Confirm email" is disabled in Supabase, so sign-up signs the user in right away and there is no email-confirmation route or "check your email" state.
+2. `app/(app)/(home)/page.tsx` is a dynamic Server Component. It calls `await connection()` so it renders per request, which keeps the daily rotation on the current date instead of the build date. It then calls `getDailyProblem("read")` and `getDailyProblem("listen")`.
 3. `lib/problems.ts` (`server-only`) holds two hard-coded banks, `READ` and `LISTEN`. Today's problem is `bank[floor(Date.now() / 86_400_000) % bank.length]`, so it rotates at **00:00 UTC**. Only `{ id, text }` (`PublicProblem`) leaves the server. Answers never reach the client.
 4. `components/problem/answer-form.tsx` (client) submits to the `checkAnswer` Server Action (`app/actions.ts`) through `useActionState`. The problem id is bound with `.bind(null, problemId)`.
 5. `checkAnswer` looks up the problem by id, then extracts the first number from the input with `lib/answer.ts` (`parseNumericAnswer`). It accepts inputs like "20", "20 minutes", "1,500" and "4.5h", and compares with `1e-6` tolerance. If the problem is one of today's (`getDailyMode`), it records the attempt with `recordAttempt` (`lib/leaderboard.ts`, the `record_attempt` RPC). It returns `{ status: "invalid" | "incorrect" | "correct", value, message }`. `value` echoes the raw input, because React resets forms after an action and the input refills from `defaultValue={state.value}`.
 6. `components/problem/listen-card.tsx` (client) speaks the problem with `window.speechSynthesis` (en-US, rate 0.9). The play button toggles play and stop, and speech is cancelled on unmount. If speech synthesis isn't available, the card shows the problem text instead.
-7. **Leaderboard.** `app/leaderboard/page.tsx` calls `getLeaderboard()`, which uses the `leaderboard` RPC to get the top 20 players plus the current user's row. Players are ranked by all-time problems solved, then fewer wrong attempts, then who reached that total first. `public.results` holds one row per user, UTC day and mode. RLS lets users write only today's row, which caps the score at 2 points a day, and read only their own rows. Other players' names and totals come only from the `security definer` `leaderboard` function.
+7. **Leaderboard.** `app/(app)/leaderboard/page.tsx` calls `getLeaderboard()`, which uses the `leaderboard` RPC to get the top 20 players plus the current user's row. Players are ranked by all-time problems solved, then fewer wrong attempts, then who reached that total first. `public.results` holds one row per user, UTC day and mode. RLS lets users write only today's row, which caps the score at 2 points a day, and read only their own rows. Other players' names and totals come only from the `security definer` `leaderboard` function.
 
 ## Structure
 
 ```
 app/
   layout.tsx        Figtree font (--font-figtree), metadata, body shell
-  page.tsx          SiteHeader, headline, 2-col card grid, footer
-  leaderboard/      All-time leaderboard page
+  (app)/            Signed-in pages. layout.tsx holds SiteHeader and the footer, so they persist across navigation
+    (home)/         page.tsx (headline, 2-col card grid) and loading.tsx; the group scopes the skeleton to /
+    leaderboard/    Leaderboard page (all-time and monthly tabs) and loading.tsx
   actions.ts        "use server": checkAnswer
-  (auth)/           Signed-out pages sharing one layout: login, signup
+  (auth)/           Signed-out pages sharing one layout and loading.tsx: login, signup
   auth/             actions.ts (signIn, signUp, signOut)
   globals.css       Design tokens (@theme), the only place colors and sizes are defined
 components/
-  ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, icons
-  problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client), NextProblems (client countdown)
-  auth/             AuthForm (client), UserMenu
-  leaderboard/      MonthReset (client, monthly reset time in the viewer's time zone)
+  ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, Skeleton, icons
+  problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client), NextProblems (client countdown), HomeIntro and card skeletons
+  auth/             AuthForm (client), AuthFormSkeleton (client), UserMenu (streams the user in), SignOutButton (client)
+  leaderboard/      LeaderboardIntro, PeriodTabs (client), LeaderboardSkeleton, MonthReset (client, monthly reset time in the viewer's time zone)
   layout/           SiteHeader (logo, leaderboard link, user menu)
 lib/
   problems.ts       Problem banks and daily selection (server-only)
@@ -65,4 +66,5 @@ DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
 - Problem ids must be unique across both banks, because `findProblem` searches both. Changing a bank's length reshuffles which problem falls on which day.
 - Prefer Server Components. Add `"use client"` only for state, effects or browser APIs, as in `AnswerForm` and `ListenCard`.
 - Accessibility: inputs need `aria-label`s (the design has no visible labels), feedback uses `aria-live="polite"`, and focus outlines must stay visible.
+- **Loading states.** Each signed-in route has a `loading.tsx` that reuses the page's static parts (headline, card headers, tabs) and swaps only data for `Skeleton`s, plus a `LoadingStatus` for screen readers. Keep skeletons in step with the layout they stand in for. Don't put blocking data in `app/(app)/layout.tsx`; it would hold up every navigation. Stream it in `<Suspense>` as `UserMenu` does.
 - Before finishing, run `npx tsc --noEmit`, `npm run lint` and `npm run build`.

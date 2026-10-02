@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { UserMenu } from "@/components/auth/user-menu";
+import { Suspense } from "react";
+import { UserMenu, UserMenuSkeleton } from "@/components/auth/user-menu";
 import { TrophyIcon } from "@/components/ui/icons";
 import { Logo } from "@/components/ui/logo";
-import type { CurrentUser } from "@/lib/supabase/user";
 
 const linkFocus = "rounded-control focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink";
 
-export function SiteHeader({ user }: { user: CurrentUser }) {
+export function SiteHeader() {
   return (
     <header className="flex items-center justify-between gap-4 pt-6 md:pt-[34px]">
       <Link href="/" aria-label="Numletics home" className={`inline-block shrink-0 ${linkFocus}`}>
@@ -22,7 +22,10 @@ export function SiteHeader({ user }: { user: CurrentUser }) {
           {/* The label hides on narrow screens so the header fits at 390px. */}
           <span className="hidden sm:inline">Leaderboard</span>
         </Link>
-        <UserMenu user={user} />
+        {/* The user streams in, so the rest of the header and the page don't wait for the auth check. */}
+        <Suspense fallback={<UserMenuSkeleton />}>
+          <UserMenu />
+        </Suspense>
       </div>
     </header>
   );
