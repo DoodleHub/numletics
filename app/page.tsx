@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ListenCard } from "@/components/problem/listen-card";
+import { NextProblems } from "@/components/problem/next-problems";
 import { ReadCard } from "@/components/problem/read-card";
 import { getDailyProblem } from "@/lib/problems";
 import { requireUser } from "@/lib/supabase/user";
@@ -19,6 +20,9 @@ export default async function Home() {
         <h1 className="text-center text-[2.5rem] font-bold leading-[1.1] tracking-[-0.02em] md:text-display">
           Your daily math.
         </h1>
+        <div className="mt-3 md:mt-4">
+          <NextProblems />
+        </div>
         <div className="mt-8 grid w-full gap-5 md:mt-[50px] md:grid-cols-2">
           <ReadCard problem={read} />
           <ListenCard problem={listen} />

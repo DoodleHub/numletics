@@ -35,7 +35,7 @@ app/
   globals.css       Design tokens (@theme), the only place colors and sizes are defined
 components/
   ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, icons
-  problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client)
+  problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client), NextProblems (client countdown)
   auth/             AuthForm (client), UserMenu
   layout/           SiteHeader (logo, leaderboard link, user menu)
 lib/
