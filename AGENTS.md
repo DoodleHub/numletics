@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Numletics
 
-A daily math app. Each day it serves two sport-themed word problems: one to **read** and one to **listen** to through browser text-to-speech. Each problem has its own answer box, and answers are checked on the server.
+A daily math app. Each day it serves two word problems: a sport-themed one to **read**, and a shopping or percentage one to **listen** to through browser text-to-speech. Each problem has its own answer box, and answers are checked on the server.
 
 Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4, TypeScript, Supabase Auth (`@supabase/ssr`, email and password), and Supabase Postgres for the leaderboard (`supabase/migrations/`).
 

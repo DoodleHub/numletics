@@ -27,16 +27,16 @@ const READ: Problem[] = [
 ];
 
 const LISTEN: Problem[] = [
-  { id: "l-goals", text: "A striker scores 2 goals every 3 games. How many goals will she score in 12 games?", answer: 8, unit: "goals" },
-  { id: "l-steps", text: "You walk 800 steps every 10 minutes. How many steps do you take in half an hour?", answer: 2400, unit: "steps" },
-  { id: "l-pushups", text: "Sam does 15 push-ups a day for one week. How many push-ups is that in total?", answer: 105, unit: "push-ups" },
-  { id: "l-bottles", text: "A team of 11 players each drink 2 bottles of water at practice. How many bottles is that?", answer: 22, unit: "bottles" },
-  { id: "l-laps-left", text: "A race is 16 laps. You have finished 3 quarters of it. How many laps are left?", answer: 4, unit: "laps" },
-  { id: "l-court", text: "A tennis court is 24 meters long. How far do you run going down and back 5 times?", answer: 240, unit: "meters" },
-  { id: "l-score", text: "A basketball team makes 9 two-point shots and 4 three-point shots. How many points do they score?", answer: 30, unit: "points" },
-  { id: "l-bike-time", text: "You cycle at 20 kilometers per hour. How many minutes does a 5 kilometer ride take?", answer: 15, unit: "minutes" },
-  { id: "l-medals", text: "A country wins 36 medals. One third of them are gold. How many gold medals did it win?", answer: 12, unit: "medals" },
-  { id: "l-warmup", text: "A warm-up has 4 drills of 90 seconds each. How many minutes long is the warm-up?", answer: 6, unit: "minutes" },
+  { id: "l-bread-discount", text: "A loaf of bread costs 4 dollars. It is 25 percent off. How many dollars do you save?", answer: 1, unit: "dollar" },
+  { id: "l-shirt-sale", text: "A shirt costs 40 dollars and is 10 percent off. What is the sale price in dollars?", answer: 36, unit: "dollars" },
+  { id: "l-apples", text: "Apples cost 2 dollars a kilo. How much do 3 kilos cost in dollars?", answer: 6, unit: "dollars" },
+  { id: "l-change", text: "You buy milk for 3 dollars and eggs for 5 dollars. You pay with a 20 dollar bill. How much change do you get?", answer: 12, unit: "dollars" },
+  { id: "l-half-price", text: "A jacket costs 50 dollars. Today it is half price. How many dollars does it cost?", answer: 25, unit: "dollars" },
+  { id: "l-tip", text: "Your lunch costs 30 dollars. You leave a 20 percent tip. How many dollars is the tip?", answer: 6, unit: "dollars" },
+  { id: "l-yogurt", text: "A pack of 6 yogurts costs 3 dollars. How many cents does one yogurt cost?", answer: 50, unit: "cents" },
+  { id: "l-oranges", text: "A bag of oranges costs 8 dollars. You buy 2 bags and get 25 percent off the total. How many dollars do you pay?", answer: 12, unit: "dollars" },
+  { id: "l-shoes", text: "A pair of shoes costs 60 dollars and is 15 percent off. How many dollars do you save?", answer: 9, unit: "dollars" },
+  { id: "l-budget", text: "Your grocery budget is 48 dollars and you spend 12 dollars. What percent of your budget did you spend?", answer: 25, unit: "%" },
 ];
 
 const BANKS: Record<Mode, Problem[]> = { read: READ, listen: LISTEN };
