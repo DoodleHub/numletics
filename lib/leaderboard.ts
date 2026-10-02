@@ -2,6 +2,9 @@ import "server-only";
 import type { Mode } from "./problems";
 import { createClient } from "./supabase/server";
 
+/** "month" counts only the current UTC calendar month. */
+export type LeaderboardPeriod = "all" | "month";
+
 export type LeaderboardRow = {
   rank: number;
   displayName: string;
@@ -20,10 +23,10 @@ export async function recordAttempt(mode: Mode, problemId: string, correct: bool
   if (error) console.error("record_attempt failed:", error.message);
 }
 
-/** The top `limit` players, plus the current user's row if they're ranked lower. */
-export async function getLeaderboard(limit = 20): Promise<LeaderboardRow[]> {
+/** The top `limit` players for `period`, plus the current user's row if they're ranked lower. */
+export async function getLeaderboard(period: LeaderboardPeriod = "all", limit = 20): Promise<LeaderboardRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("leaderboard", { p_limit: limit });
+  const { data, error } = await supabase.rpc("leaderboard", { p_limit: limit, p_period: period });
   if (error) throw new Error(`leaderboard failed: ${error.message}`);
   return (data as { rank: number; display_name: string; solved: number; wrong_attempts: number; is_me: boolean }[]).map(
     (row) => ({

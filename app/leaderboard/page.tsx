@@ -1,17 +1,29 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { MonthReset } from "@/components/leaderboard/month-reset";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Card, CardHeader } from "@/components/ui/card";
 import { TrophyIcon } from "@/components/ui/icons";
-import { getLeaderboard, type LeaderboardRow } from "@/lib/leaderboard";
+import { getLeaderboard, type LeaderboardPeriod, type LeaderboardRow } from "@/lib/leaderboard";
 import { requireUser } from "@/lib/supabase/user";
 
 export const metadata: Metadata = { title: "Leaderboard — Numletics" };
 
 const TOP = 20;
 
-export default async function LeaderboardPage() {
+const TABS: { period: LeaderboardPeriod; label: string; href: string }[] = [
+  { period: "all", label: "All-time", href: "/leaderboard" },
+  { period: "month", label: "This month", href: "/leaderboard?period=month" },
+];
+
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const user = await requireUser();
-  const rows = await getLeaderboard(TOP);
+  const period: LeaderboardPeriod = (await searchParams).period === "month" ? "month" : "all";
+  const rows = await getLeaderboard(period, TOP);
   const top = rows.filter((row) => row.rank <= TOP);
   // The current user's row, when they're ranked below the top list.
   const me = rows.find((row) => row.isMe && row.rank > TOP);
@@ -26,12 +38,29 @@ export default async function LeaderboardPage() {
         <p className="mt-4 text-center text-base text-muted md:mt-6 md:text-caption">
           One point for each daily problem you solve. Ties go to fewer wrong answers.
         </p>
-        <div className="mt-8 w-full md:mt-[50px]">
+        <nav aria-label="Leaderboard period" className="mt-8 flex rounded-control border border-line-strong bg-surface p-1 md:mt-[50px]">
+          {TABS.map((tab) => (
+            <Link
+              key={tab.period}
+              href={tab.href}
+              aria-current={tab.period === period ? "page" : undefined}
+              className={`rounded-control px-4 py-2 text-base font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink md:px-6 md:text-caption ${
+                tab.period === period ? "bg-ink text-surface" : "text-muted hover:text-ink"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mt-5 w-full">
           <Card>
-            <CardHeader icon={TrophyIcon} title="All-time" />
+            <CardHeader icon={TrophyIcon} title={period === "month" ? currentMonth() : "All-time"} />
+            {period === "month" && <MonthReset />}
             {top.length === 0 ? (
               <p className="mt-8 text-base text-muted md:mt-[50px] md:text-caption">
-                No one has solved a problem yet. Be the first.
+                {period === "month"
+                  ? "No one has solved a problem this month yet. Be the first."
+                  : "No one has solved a problem yet. Be the first."}
               </p>
             ) : (
               <table className="mt-8 w-full table-fixed text-lg md:mt-[50px] md:text-control">
@@ -73,6 +102,11 @@ export default async function LeaderboardPage() {
       </footer>
     </div>
   );
+}
+
+/** e.g. "October 2026". Months follow UTC, like the daily rotation. */
+function currentMonth() {
+  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date());
 }
 
 function Row({ row }: { row: LeaderboardRow }) {

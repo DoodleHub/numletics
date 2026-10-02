@@ -37,6 +37,7 @@ components/
   ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, icons
   problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client), NextProblems (client countdown)
   auth/             AuthForm (client), UserMenu
+  leaderboard/      MonthReset (client, monthly reset time in the viewer's time zone)
   layout/           SiteHeader (logo, leaderboard link, user menu)
 lib/
   problems.ts       Problem banks and daily selection (server-only)
