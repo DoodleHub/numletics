@@ -58,9 +58,16 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   const { email, password, displayName } = credentials;
 
   const supabase = await createClient();
-  // A database trigger copies display_name into public.profiles.
+  const nameTaken = async () => {
+    const { data: available } = await supabase.rpc("display_name_available", { p_name: displayName });
+    return available === false;
+  };
+  const takenError = { status: "error", email, displayName, message: "That display name is taken. Try another.", field: "displayName" } as const;
+  if (await nameTaken()) return takenError;
+
+  // A database trigger copies display_name into public.profiles, and fails the sign-up if someone took the name meanwhile.
   const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName } } });
-  if (error) return { status: "error", email, displayName, message: error.message };
+  if (error) return (await nameTaken()) ? takenError : { status: "error", email, displayName, message: error.message };
 
   // "Confirm email" is disabled in Supabase, so sign-up returns a session and the user is signed in right away.
   // A missing session means the project settings changed; there's no confirmation flow to fall back on.

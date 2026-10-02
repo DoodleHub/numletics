@@ -5,6 +5,7 @@ import { useActionState, useId } from "react";
 import { signIn, signUp, type AuthField, type AuthState } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PasswordInput } from "@/components/ui/password-input";
 import { TextInput } from "@/components/ui/text-input";
 import { DISPLAY_NAME_MAX } from "@/lib/display-name";
 
@@ -68,9 +69,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           tone={invalid("email") ? "danger" : "default"}
           required
         />
-        <TextInput
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           placeholder="Password"
           aria-label="Password"
