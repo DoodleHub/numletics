@@ -14,10 +14,11 @@ export default async function Home() {
   const listen = getDailyProblem("listen");
   const solved = await getSolvedToday();
 
+  // Keyed by id so the midnight router.refresh() in NextProblems remounts the cards with fresh form and speech state.
   return (
     <HomeIntro>
-      <ReadCard problem={read} solved={getSolvedState(read.id, solved)} />
-      <ListenCard problem={listen} solved={getSolvedState(listen.id, solved)} />
+      <ReadCard key={read.id} problem={read} solved={getSolvedState(read.id, solved)} />
+      <ListenCard key={listen.id} problem={listen} solved={getSolvedState(listen.id, solved)} />
     </HomeIntro>
   );
 }
