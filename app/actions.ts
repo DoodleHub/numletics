@@ -1,7 +1,8 @@
 "use server";
 
 import { isCorrect, parseNumericAnswer } from "@/lib/answer";
-import { findProblem } from "@/lib/problems";
+import { recordAttempt } from "@/lib/leaderboard";
+import { findProblem, getDailyMode } from "@/lib/problems";
 import { getCurrentUser } from "@/lib/supabase/user";
 
 export type CheckState =
@@ -24,7 +25,12 @@ export async function checkAnswer(
   const value = parseNumericAnswer(raw);
   if (value === null) return { status: "invalid", value: raw, message: "Enter a number." };
 
-  if (!isCorrect(value, problem.answer)) {
+  const correct = isCorrect(value, problem.answer);
+  // Only today's problems count toward the leaderboard. A page left open past 00:00 UTC still checks answers.
+  const mode = getDailyMode(problem.id);
+  if (mode) await recordAttempt(mode, problem.id, correct);
+
+  if (!correct) {
     return { status: "incorrect", value: raw, message: "Not quite. Try again." };
   }
   const unit = problem.unit ? (problem.unit === "%" ? "%" : ` ${problem.unit}`) : "";

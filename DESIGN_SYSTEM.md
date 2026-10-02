@@ -42,10 +42,11 @@ Font: **Figtree** (`next/font/google`, exposed as `--font-figtree`, mapped to `f
 - Vertical rhythm on desktop: about 50px between headline and cards, and about 50px between cards and footer.
 - Card borders are 1px `line`. Cards have no shadow.
 - Auth pages (`/login`, `/signup`) center a single card in `max-w-auth` (512px).
+- The leaderboard centers one card in `max-w-board` (720px). Rows are split by 1px `line` borders, and the current user's row is bold with a muted "(you)".
 
 ## Iconography
 
-Inline SVG, 24×24 viewBox, 2px round strokes, `currentColor`. They render at 44px in card headers (36px on mobile). Available icons are in `components/ui/icons.tsx`: `BookIcon`, `HeadphonesIcon`, `PlayGlyph` and `StopGlyph`.
+Inline SVG, 24×24 viewBox, 2px round strokes, `currentColor`. They render at 44px in card headers (36px on mobile). Available icons are in `components/ui/icons.tsx`: `BookIcon`, `HeadphonesIcon`, `TrophyIcon`, `PlayGlyph` and `StopGlyph`.
 
 ## Components (`components/ui/`)
 

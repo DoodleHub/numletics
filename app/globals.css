@@ -53,6 +53,7 @@
   --spacing-play: 7rem; /* 112px — play button diameter */
   --container-page: 78.75rem; /* 1260px — card grid width */
   --container-auth: 32rem; /* 512px — sign-in and sign-up card width */
+  --container-board: 45rem; /* 720px — leaderboard card width */
 }
 
 body {

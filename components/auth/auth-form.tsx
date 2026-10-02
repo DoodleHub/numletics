@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useActionState, useId } from "react";
-import { signIn, signUp, type AuthState } from "@/app/auth/actions";
+import { signIn, signUp, type AuthField, type AuthState } from "@/app/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TextInput } from "@/components/ui/text-input";
+import { DISPLAY_NAME_MAX } from "@/lib/display-name";
 
 const copy = {
   login: {
@@ -26,20 +27,35 @@ const copy = {
   },
 } as const;
 
-const initialState: AuthState = { status: "idle", email: "" };
+const initialState: AuthState = { status: "idle", email: "", displayName: "" };
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [state, formAction, pending] = useActionState(mode === "login" ? signIn : signUp, initialState);
   const feedbackId = useId();
   const text = copy[mode];
-  // Highlight only the field that failed. Errors from Supabase (e.g. wrong password) have no field and mark both.
-  const invalid = (field: "email" | "password") =>
-    state.status === "error" && (state.field === undefined || state.field === field);
+  // Highlight only the field that failed. Errors from Supabase (e.g. wrong password) have no field and mark
+  // email and password.
+  const invalid = (field: AuthField) =>
+    state.status === "error" && (state.field === undefined ? field !== "displayName" : state.field === field);
 
   return (
     <Card>
       <h1 className="text-[1.625rem] font-bold leading-tight tracking-[-0.01em] md:text-title">{text.title}</h1>
       <form action={formAction} className="flex flex-col gap-5 pt-8">
+        {mode === "signup" && (
+          <TextInput
+            name="displayName"
+            defaultValue={state.displayName}
+            autoComplete="nickname"
+            placeholder="Display name"
+            aria-label="Display name, shown on the leaderboard"
+            aria-describedby={feedbackId}
+            aria-invalid={invalid("displayName")}
+            tone={invalid("displayName") ? "danger" : "default"}
+            maxLength={DISPLAY_NAME_MAX}
+            required
+          />
+        )}
         <TextInput
           name="email"
           type="email"

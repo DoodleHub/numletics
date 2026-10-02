@@ -45,3 +45,13 @@ export function StopGlyph(props: IconProps) {
     </svg>
   );
 }
+
+export function TrophyIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...stroke} {...props}>
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+      <path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" />
+      <path d="M12 14v4M8 20.5h8" />
+    </svg>
+  );
+}

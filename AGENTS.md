@@ -10,23 +10,25 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 A daily math app. Each day it serves two sport-themed word problems: one to **read** and one to **listen** to through browser text-to-speech. Each problem has its own answer box, and answers are checked on the server.
 
-Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4, TypeScript, Supabase Auth (`@supabase/ssr`, email and password). There is no database of our own.
+Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4, TypeScript, Supabase Auth (`@supabase/ssr`, email and password), and Supabase Postgres for the leaderboard (`supabase/migrations/`).
 
 ## App logic
 
-1. **Auth.** Every page requires a signed-in user except `/login` and `/signup`. `proxy.ts` refreshes the Supabase session on each request and redirects signed-out visitors to `/login`. That redirect is only optimistic, so `app/page.tsx` also calls `requireUser()` and `checkAnswer` calls `getCurrentUser()` (both in `lib/supabase/user.ts`, which verifies the JWT with `getClaims()`). Sign in, sign up and sign out are Server Actions in `app/auth/actions.ts`, and they validate email and password on the server. "Confirm email" is disabled in Supabase, so sign-up signs the user in right away and there is no email-confirmation route or "check your email" state.
+1. **Auth.** Every page requires a signed-in user except `/login` and `/signup`. `proxy.ts` refreshes the Supabase session on each request and redirects signed-out visitors to `/login`. That redirect is only optimistic, so `app/page.tsx` also calls `requireUser()` and `checkAnswer` calls `getCurrentUser()` (both in `lib/supabase/user.ts`, which verifies the JWT with `getClaims()`). Sign in, sign up and sign out are Server Actions in `app/auth/actions.ts`, and they validate email, password and (on sign-up) display name on the server. The display name goes into sign-up metadata, and the `on_auth_user_created` trigger copies it into `public.profiles`. "Confirm email" is disabled in Supabase, so sign-up signs the user in right away and there is no email-confirmation route or "check your email" state.
 2. `app/page.tsx` is a dynamic Server Component. It calls `await connection()` so it renders per request, which keeps the daily rotation on the current date instead of the build date. It then calls `getDailyProblem("read")` and `getDailyProblem("listen")`.
 3. `lib/problems.ts` (`server-only`) holds two hard-coded banks, `READ` and `LISTEN`. Today's problem is `bank[floor(Date.now() / 86_400_000) % bank.length]`, so it rotates at **00:00 UTC**. Only `{ id, text }` (`PublicProblem`) leaves the server. Answers never reach the client.
 4. `components/problem/answer-form.tsx` (client) submits to the `checkAnswer` Server Action (`app/actions.ts`) through `useActionState`. The problem id is bound with `.bind(null, problemId)`.
-5. `checkAnswer` looks up the problem by id, then extracts the first number from the input with `lib/answer.ts` (`parseNumericAnswer`). It accepts inputs like "20", "20 minutes", "1,500" and "4.5h", and compares with `1e-6` tolerance. It returns `{ status: "invalid" | "incorrect" | "correct", value, message }`. `value` echoes the raw input, because React resets forms after an action and the input refills from `defaultValue={state.value}`.
+5. `checkAnswer` looks up the problem by id, then extracts the first number from the input with `lib/answer.ts` (`parseNumericAnswer`). It accepts inputs like "20", "20 minutes", "1,500" and "4.5h", and compares with `1e-6` tolerance. If the problem is one of today's (`getDailyMode`), it records the attempt with `recordAttempt` (`lib/leaderboard.ts`, the `record_attempt` RPC). It returns `{ status: "invalid" | "incorrect" | "correct", value, message }`. `value` echoes the raw input, because React resets forms after an action and the input refills from `defaultValue={state.value}`.
 6. `components/problem/listen-card.tsx` (client) speaks the problem with `window.speechSynthesis` (en-US, rate 0.9). The play button toggles play and stop, and speech is cancelled on unmount. If speech synthesis isn't available, the card shows the problem text instead.
+7. **Leaderboard.** `app/leaderboard/page.tsx` calls `getLeaderboard()`, which uses the `leaderboard` RPC to get the top 20 players plus the current user's row. Players are ranked by all-time problems solved, then fewer wrong attempts, then who reached that total first. `public.results` holds one row per user, UTC day and mode. RLS lets users write only today's row, which caps the score at 2 points a day, and read only their own rows. Other players' names and totals come only from the `security definer` `leaderboard` function.
 
 ## Structure
 
 ```
 app/
   layout.tsx        Figtree font (--font-figtree), metadata, body shell
-  page.tsx          Header (Logo), headline, 2-col card grid, footer
+  page.tsx          SiteHeader, headline, 2-col card grid, footer
+  leaderboard/      All-time leaderboard page
   actions.ts        "use server": checkAnswer
   (auth)/           Signed-out pages sharing one layout: login, signup
   auth/             actions.ts (signIn, signUp, signOut)
@@ -35,10 +37,15 @@ components/
   ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, icons
   problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client)
   auth/             AuthForm (client), UserMenu
+  layout/           SiteHeader (logo, leaderboard link, user menu)
 lib/
   problems.ts       Problem banks and daily selection (server-only)
   answer.ts         Numeric parsing and comparison (shared, pure)
+  leaderboard.ts    recordAttempt and getLeaderboard RPC wrappers (server-only)
+  display-name.ts   Display-name length limits (shared)
   supabase/         env, server client, proxy session refresh, getCurrentUser/requireUser (server-only)
+supabase/
+  migrations/       SQL applied to the Supabase project: profiles, results, RPCs
 proxy.ts            Next 16 proxy (formerly middleware): session refresh and sign-in redirect
 ss-mocks/           Design mocks; main-design.png is the source of truth
 DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
@@ -51,6 +58,7 @@ DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
 - The theme is light only. There are no dark-mode styles.
 - **Never send answers to the client.** Keep `lib/problems.ts` behind `import "server-only"`, and import only its *types* (`import type`) from client components. Check answers only in `checkAnswer`.
 - **Auth checks run on the server with `getClaims()`, never `getSession()`.** Gate new pages with `requireUser()` and new Server Actions with `getCurrentUser()`. To make a page public, add it to `isPublicPath` in `lib/supabase/proxy.ts`. Supabase settings live in `.env.local` (see `.env.example`), and only the publishable key belongs there.
+- **Database changes go in a new file in `supabase/migrations/`.** Enable RLS on every table and wrap `auth.uid()` in `(select …)` in policies. Don't widen read access to `results` or `profiles`; expose other users' data only through aggregate functions like `leaderboard`.
 - Every problem needs a single numeric answer. `unit` is optional and is used only in the success message (`"%"` attaches without a space).
 - Listen problems are spoken aloud. Keep them short and easy to do as mental math, and avoid symbols or notation that TTS reads badly.
 - Problem ids must be unique across both banks, because `findProblem` searches both. Changing a bank's length reshuffles which problem falls on which day.

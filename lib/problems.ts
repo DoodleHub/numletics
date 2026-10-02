@@ -56,3 +56,8 @@ export function getDailyProblem(mode: Mode, date = new Date()): PublicProblem {
 export function findProblem(id: string): Problem | undefined {
   return READ.find((p) => p.id === id) ?? LISTEN.find((p) => p.id === id);
 }
+
+/** The mode whose problem today is `id`, or null if it isn't one of today's problems. */
+export function getDailyMode(id: string, date = new Date()): Mode | null {
+  return (Object.keys(BANKS) as Mode[]).find((mode) => getDailyProblem(mode, date).id === id) ?? null;
+}
