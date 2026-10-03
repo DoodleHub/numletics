@@ -7,7 +7,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Numletics",
     description: "Two math problems every day: one to read, one to listen to.",
     id: "/",
-    start_url: "/",
+    // A static launch screen the service worker serves from the cache. It paints instantly and then
+    // replaces itself with "/", so opening the app never shows a blank screen while the server responds.
+    start_url: "/launch.html",
     scope: "/",
     display: "standalone",
     background_color: "#fefdf8",

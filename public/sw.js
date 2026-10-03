@@ -1,11 +1,12 @@
-// Numletics service worker. Pages are per-user and per-day, so HTML is never cached: navigations go
-// to the network and fall back to /offline.html when there is none. Only build assets and icons are
-// cached. POSTs (Server Actions) and RSC requests pass straight through.
+// Numletics service worker. Pages are per-user and per-day, so their HTML is never cached: navigations
+// go to the network and fall back to /offline.html when there is none. Only build assets, icons and the
+// static pages in PRECACHE are cached. POSTs (Server Actions) and RSC requests pass straight through.
 // Bump VERSION when the precached files change.
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `numletics-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
-const PRECACHE = [OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png"];
+const LAUNCH_URL = "/launch.html";
+const PRECACHE = [OFFLINE_URL, LAUNCH_URL, "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -32,6 +33,14 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // The launch screen (the manifest's start_url) is static, so it comes from the cache to paint at once.
+  if (request.mode === "navigate" && url.pathname === LAUNCH_URL) {
+    event.respondWith(
+      (async () => (await caches.match(LAUNCH_URL)) || fetch(request).catch(() => caches.match(OFFLINE_URL)))(),
+    );
+    return;
+  }
 
   if (request.mode === "navigate") {
     event.respondWith(
