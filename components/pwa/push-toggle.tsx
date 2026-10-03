@@ -14,13 +14,17 @@ const labels: Record<Exclude<Status, "unsupported">, string> = {
   blocked: "Daily reminders are blocked in your browser settings",
 };
 
-// The service worker registers in production only (ServiceWorkerRegistration), so this stays
-// hidden in dev. On iOS, web push only exists once the app is added to the home screen.
-async function getRegistration() {
-  if (!vapidPublicKey || !("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-    return null;
-  }
-  return (await navigator.serviceWorker.getRegistration("/")) ?? null;
+function isSupported() {
+  return Boolean(vapidPublicKey) && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+}
+
+// The service worker registers in production only (ServiceWorkerRegistration), so `ready` never
+// settles in dev and the bell stays hidden. Waiting on `ready` rather than reading the current
+// registration matters on a first launch from the iOS home screen: the installed app has its own
+// storage, so the worker is still registering when this runs. On iOS, web push only exists once the
+// app is added to the home screen.
+function getRegistration() {
+  return isSupported() ? navigator.serviceWorker.ready : Promise.resolve(null);
 }
 
 // The zone last saved from this browser, so a change (travel, a new device setting) is re-saved.
@@ -87,21 +91,25 @@ export function PushToggle() {
   }, []);
 
   async function toggle() {
-    const registration = await getRegistration();
-    if (!registration) return;
     setBusy(true);
     try {
-      const existing = await registration.pushManager.getSubscription();
-      if (existing) {
-        await unsubscribeFromDailyPush(existing.endpoint);
-        await existing.unsubscribe();
+      if (status === "on") {
+        const existing = await (await getRegistration())?.pushManager.getSubscription();
+        if (existing) {
+          await unsubscribeFromDailyPush(existing.endpoint);
+          await existing.unsubscribe();
+        }
         setStatus("off");
         return;
       }
+      // Ask first: iOS shows the prompt only while the tap still counts as a user gesture, which
+      // can lapse during the awaits below.
       if ((await Notification.requestPermission()) !== "granted") {
         setStatus(Notification.permission === "denied" ? "blocked" : "off");
         return;
       }
+      const registration = await getRegistration();
+      if (!registration) return;
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
