@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Figtree } from "next/font/google";
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import "./globals.css";
 
 const figtree = Figtree({
@@ -10,12 +11,22 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "Numletics — Your daily math",
   description: "Two math problems every day: one to read, one to listen to.",
+  applicationName: "Numletics",
+  // iOS reads these instead of the manifest when the app is added to the home screen.
+  appleWebApp: { capable: true, title: "Numletics", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fefdf8", // --color-canvas
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${figtree.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">
+        {children}
+        <ServiceWorkerRegistration />
+      </body>
     </html>
   );
 }

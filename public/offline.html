@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fefdf8" />
+    <title>Offline — Numletics</title>
+    <style>
+      /* Served by the service worker with no network, so it can't load the app's CSS.
+         Values copy the tokens in app/globals.css. */
+      :root {
+        --canvas: #fefdf8;
+        --surface: #ffffff;
+        --ink: #0f1216;
+        --muted: #4b4e5a;
+        --line: #e5e5e6;
+        --accent: #bef62e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+      main {
+        width: 100%;
+        max-width: 32rem;
+        padding: 32px;
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+      }
+      svg { width: 48px; height: 48px; }
+      h1 { margin: 20px 0 8px; font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.01em; }
+      p { margin: 0 0 24px; color: var(--muted); font-size: 1.125rem; line-height: 1.4; }
+      button {
+        height: 3.5rem;
+        padding: 0 28px;
+        border: 0;
+        border-radius: 0.5rem;
+        background: var(--ink);
+        color: var(--surface);
+        font: inherit;
+        font-size: 1.125rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="0" y="7" width="11" height="25" rx="2" fill="var(--accent)" />
+        <path d="M1 0h9l11 16V0h10v28h-8L11 10 1 3V0Z" fill="var(--ink)" />
+      </svg>
+      <h1>You're offline</h1>
+      <p>Today's problems need a connection. Reconnect and try again.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+    <script>
+      window.addEventListener("online", () => location.reload());
+    </script>
+  </body>
+</html>

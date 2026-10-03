@@ -31,6 +31,7 @@ app/
     (home)/         page.tsx (headline, 2-col card grid) and loading.tsx; the group scopes the skeleton to /
     leaderboard/    Leaderboard page (all-time and monthly tabs) and loading.tsx
   actions.ts        "use server": checkAnswer
+  manifest.ts       Web app manifest (/manifest.webmanifest); apple-icon.png is the iOS home-screen icon
   (auth)/           Signed-out pages sharing one layout and loading.tsx: login, signup
   auth/             actions.ts (signIn, signUp, signOut)
   globals.css       Design tokens (@theme), the only place colors and sizes are defined
@@ -40,6 +41,7 @@ components/
   auth/             AuthForm (client), AuthFormSkeleton (client), UserMenu (streams the user in), SignOutButton (client)
   leaderboard/      LeaderboardIntro, PeriodTabs (client), LeaderboardSkeleton, MonthReset (client, monthly reset time in the viewer's time zone)
   layout/           SiteHeader (logo, leaderboard link, user menu)
+  pwa/              ServiceWorkerRegistration (client, production only)
 lib/
   problems.ts       Problem banks and daily selection (server-only)
   answer.ts         Numeric parsing and comparison (shared, pure)
@@ -48,6 +50,10 @@ lib/
   supabase/         env, server client, proxy session refresh, getCurrentUser/requireUser (server-only)
 supabase/
   migrations/       SQL applied to the Supabase project: profiles, results, RPCs
+public/
+  sw.js             Service worker: offline fallback for navigations, cache-first for /_next/static and icons
+  offline.html      Self-contained offline page (inline styles copy the tokens)
+  icons/            Manifest icons (192, 512), also used as maskable
 proxy.ts            Next 16 proxy (formerly middleware): session refresh and sign-in redirect
 ss-mocks/           Design mocks; main-design.png is the source of truth
 DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
@@ -67,4 +73,5 @@ DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
 - Prefer Server Components. Add `"use client"` only for state, effects or browser APIs, as in `AnswerForm` and `ListenCard`.
 - Accessibility: inputs need `aria-label`s (the design has no visible labels), feedback uses `aria-live="polite"`, and focus outlines must stay visible.
 - **Loading states.** Each signed-in route has a `loading.tsx` that reuses the page's static parts (headline, card headers, tabs) and swaps only data for `Skeleton`s, plus a `LoadingStatus` for screen readers. Keep skeletons in step with the layout they stand in for. Don't put blocking data in `app/(app)/layout.tsx`; it would hold up every navigation. Stream it in `<Suspense>` as `UserMenu` does.
+- **PWA.** The service worker must never cache HTML, RSC payloads or Server Action responses: pages are per-user and per-day. Bump `VERSION` in `public/sw.js` when its precached files change. PWA files (`manifest.webmanifest`, `sw.js`, `offline.html`, icons) must load without a session, so keep them out of the `proxy.ts` matcher.
 - Before finishing, run `npx tsc --noEmit`, `npm run lint` and `npm run build`.
