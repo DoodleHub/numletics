@@ -23,12 +23,50 @@ async function getRegistration() {
   return (await navigator.serviceWorker.getRegistration("/")) ?? null;
 }
 
+// The zone last saved from this browser, so a change (travel, a new device setting) is re-saved.
+const SAVED_ZONE_KEY = "numletics:push-time-zone";
+
+function currentTimeZone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+}
+
+function readSavedZone() {
+  try {
+    return localStorage.getItem(SAVED_ZONE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeSavedZone(zone: string) {
+  try {
+    localStorage.setItem(SAVED_ZONE_KEY, zone);
+  } catch {
+    // Storage can be blocked; the zone is then re-saved on the next visit, which is harmless.
+  }
+}
+
+async function save(subscription: PushSubscription) {
+  const timeZone = currentTimeZone();
+  const json = subscription.toJSON();
+  const saved = await subscribeToDailyPush({
+    endpoint: subscription.endpoint,
+    keys: { p256dh: json.keys?.p256dh ?? "", auth: json.keys?.auth ?? "" },
+    timeZone,
+  });
+  if (saved) writeSavedZone(timeZone);
+  return saved;
+}
+
 function urlBase64ToUint8Array(base64: string) {
   const padded = (base64 + "=".repeat((4 - (base64.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/");
   return Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
 }
 
-/** Bell in the header that subscribes this browser to the 00:00 UTC "today's problems are ready" push. */
+/**
+ * Bell in the header that subscribes this browser to the daily pushes: a morning "today's problems are
+ * ready" and an evening reminder when they're unsolved, both in the browser's local time.
+ */
 export function PushToggle() {
   const [status, setStatus] = useState<Status>("unsupported");
   const [busy, setBusy] = useState(false);
@@ -41,6 +79,7 @@ export function PushToggle() {
       const subscription = await registration.pushManager.getSubscription();
       if (!active) return;
       setStatus(subscription ? "on" : Notification.permission === "denied" ? "blocked" : "off");
+      if (subscription && readSavedZone() !== currentTimeZone()) await save(subscription);
     })();
     return () => {
       active = false;
@@ -67,11 +106,7 @@ export function PushToggle() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
       });
-      const json = subscription.toJSON();
-      const saved = await subscribeToDailyPush({
-        endpoint: subscription.endpoint,
-        keys: { p256dh: json.keys?.p256dh ?? "", auth: json.keys?.auth ?? "" },
-      });
+      const saved = await save(subscription);
       // Don't leave the browser subscribed to pushes the server will never send.
       if (!saved) await subscription.unsubscribe();
       setStatus(saved ? "on" : "off");

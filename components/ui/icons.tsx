@@ -92,3 +92,11 @@ export function BellOffIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function FlameIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...stroke} {...props}>
+      <path d="M12 21.5c-4 0-7-2.8-7-6.6 0-3.5 2.3-5.6 3.9-7.6.4 1.9 1.3 3.1 2.6 3.6C11 7.4 12.6 4.3 15 2.5c.2 3.3 4 5.9 4 11.4 0 4.3-3 7.6-7 7.6Z" />
+    </svg>
+  );
+}

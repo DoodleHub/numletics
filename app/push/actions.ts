@@ -14,9 +14,14 @@ function isEndpoint(value: unknown): value is string {
 
 export async function subscribeToDailyPush(subscription: PushSubscriptionInput): Promise<boolean> {
   if (!(await getCurrentUser())) return false;
-  const { endpoint, keys } = subscription ?? {};
+  const { endpoint, keys, timeZone } = subscription ?? {};
   if (!isEndpoint(endpoint) || !isText(keys?.p256dh, 256) || !isText(keys?.auth, 256)) return false;
-  return savePushSubscription({ endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } });
+  // The database checks the zone name and falls back to UTC.
+  return savePushSubscription({
+    endpoint,
+    keys: { p256dh: keys.p256dh, auth: keys.auth },
+    timeZone: isText(timeZone, 64) ? timeZone : "UTC",
+  });
 }
 
 export async function unsubscribeFromDailyPush(endpoint: string): Promise<void> {

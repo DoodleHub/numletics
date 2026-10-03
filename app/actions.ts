@@ -1,5 +1,6 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { isCorrect, parseNumericAnswer } from "@/lib/answer";
 import { getSolvedToday, recordAttempt } from "@/lib/leaderboard";
 import { findProblem, formatAnswer, getDailyMode, solvedMessage } from "@/lib/problems";
@@ -34,6 +35,9 @@ export async function checkAnswer(
 
   const correct = isCorrect(value, problem.answer);
   if (mode) await recordAttempt(mode, problem.id, correct);
+  // A new solve can start or extend the streak on the home page. Refreshing re-renders it; the
+  // answer forms keep their state because their keys don't change.
+  if (mode && correct) refresh();
 
   if (!correct) {
     return { status: "incorrect", value: raw, message: "Not quite. Try again." };
