@@ -73,3 +73,22 @@ export function EyeOffIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function BellIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...stroke} {...props}>
+      <path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Z" />
+      <path d="M10.3 20a1.9 1.9 0 0 0 3.4 0" />
+    </svg>
+  );
+}
+
+export function BellOffIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...stroke} {...props}>
+      <path d="M8.7 3.9A6 6 0 0 1 18 9c0 3.2.7 5.1 1.4 6.2M17 16.5H3.5S6 15 6 9c0-.6.1-1.2.3-1.8" />
+      <path d="M10.3 20a1.9 1.9 0 0 0 3.4 0" />
+      <path d="m3 3 18 18" />
+    </svg>
+  );
+}

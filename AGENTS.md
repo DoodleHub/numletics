@@ -20,7 +20,8 @@ Stack: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4, TypeScript
 4. `components/problem/answer-form.tsx` (client) submits to the `checkAnswer` Server Action (`app/actions.ts`) through `useActionState`. The problem id is bound with `.bind(null, problemId)`.
 5. `checkAnswer` looks up the problem by id, then extracts the first number from the input with `lib/answer.ts` (`parseNumericAnswer`). It accepts inputs like "20", "20 minutes", "1,500" and "4.5h", and compares with `1e-6` tolerance. If the problem is one of today's (`getDailyMode`) and already solved, it returns `correct` without checking again. Otherwise it records the attempt with `recordAttempt` (`lib/leaderboard.ts`, the `record_attempt` RPC). It returns `{ status: "invalid" | "incorrect" | "correct", value, message }`. `value` echoes the raw input, because React resets forms after an action and the input refills from `defaultValue={state.value}`.
 6. `components/problem/listen-card.tsx` (client) speaks the problem with `window.speechSynthesis` (en-US, rate 0.9). The play button toggles play and stop, and speech is cancelled on unmount. If speech synthesis isn't available, the card shows the problem text instead.
-7. **Leaderboard.** `app/(app)/leaderboard/page.tsx` calls `getLeaderboard()`, which uses the `leaderboard` RPC to get the top 20 players plus the current user's row. Players are ranked by all-time problems solved, then fewer wrong attempts, then who reached that total first. `public.results` holds one row per user, UTC day and mode. RLS lets users write only today's row, which caps the score at 2 points a day, and read only their own rows. Other players' names and totals come only from the `security definer` `leaderboard` function.
+7. **PWA and daily push.** The app installs from `app/manifest.ts` and `public/sw.js` (offline page, asset cache, push display). `experimental.useOffline` keeps navigations and answer submissions pending while offline; `OfflineBanner` and `AnswerForm` show it. The header's `PushToggle` subscribes the browser and saves the subscription through `app/push/actions.ts` (`save_push_subscription` RPC). At 00:00 UTC pg_cron calls the `daily-push` Edge Function (`supabase/functions/daily-push`), which claims each subscription at most once per UTC day with `private.claim_daily_push()`, sends "today's problems are ready" and deletes expired subscriptions. The VAPID private key is an Edge Function secret; the Next app has only `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
+8. **Leaderboard.** `app/(app)/leaderboard/page.tsx` calls `getLeaderboard()`, which uses the `leaderboard` RPC to get the top 20 players plus the current user's row. Players are ranked by all-time problems solved, then fewer wrong attempts, then who reached that total first. `public.results` holds one row per user, UTC day and mode. RLS lets users write only today's row, which caps the score at 2 points a day, and read only their own rows. Other players' names and totals come only from the `security definer` `leaderboard` function.
 
 ## Structure
 
@@ -34,6 +35,7 @@ app/
   manifest.ts       Web app manifest (/manifest.webmanifest); apple-icon.png is the iOS home-screen icon
   (auth)/           Signed-out pages sharing one layout and loading.tsx: login, signup
   auth/             actions.ts (signIn, signUp, signOut)
+  push/             actions.ts (subscribeToDailyPush, unsubscribeFromDailyPush)
   globals.css       Design tokens (@theme), the only place colors and sizes are defined
 components/
   ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, Skeleton, icons
@@ -41,15 +43,17 @@ components/
   auth/             AuthForm (client), AuthFormSkeleton (client), UserMenu (streams the user in), SignOutButton (client)
   leaderboard/      LeaderboardIntro, PeriodTabs (client), LeaderboardSkeleton, MonthReset (client, monthly reset time in the viewer's time zone)
   layout/           SiteHeader (logo, leaderboard link, user menu)
-  pwa/              ServiceWorkerRegistration (client, production only)
+  pwa/              ServiceWorkerRegistration (client, production only), OfflineBanner, PushToggle (header bell)
 lib/
   problems.ts       Problem banks and daily selection (server-only)
   answer.ts         Numeric parsing and comparison (shared, pure)
   leaderboard.ts    recordAttempt and getLeaderboard RPC wrappers (server-only)
+  push.ts           Push subscription save/delete (server-only)
   display-name.ts   Display-name length limits (shared)
   supabase/         env, server client, proxy session refresh, getCurrentUser/requireUser (server-only)
 supabase/
-  migrations/       SQL applied to the Supabase project: profiles, results, RPCs
+  migrations/       SQL applied to the Supabase project: profiles, results, RPCs, push subscriptions and cron
+  functions/        Deno Edge Functions (excluded from tsc and ESLint): daily-push
 public/
   sw.js             Service worker: offline fallback for navigations, cache-first for /_next/static and icons
   offline.html      Self-contained offline page (inline styles copy the tokens)

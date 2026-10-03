@@ -62,3 +62,31 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+
+// Daily reminder sent by the daily-push Edge Function: { title, body, url }.
+self.addEventListener("push", (event) => {
+  const data = event.data ? event.data.json() : {};
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Numletics", {
+      body: data.body,
+      icon: "/icons/icon-192.png",
+      tag: "daily",
+      data: { url: data.url || "/" },
+    }),
+  );
+});
+
+// Focus an open Numletics window if there is one, otherwise open a new one.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url || "/", self.location.origin).href;
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const existing = windows.find((client) => new URL(client.url).origin === self.location.origin);
+      if (!existing) return self.clients.openWindow(url);
+      await existing.focus();
+      if (existing.url !== url) await existing.navigate(url).catch(() => {});
+    })(),
+  );
+});

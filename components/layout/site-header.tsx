@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { UserMenu, UserMenuSkeleton } from "@/components/auth/user-menu";
+import { PushToggle } from "@/components/pwa/push-toggle";
 import { TrophyIcon } from "@/components/ui/icons";
 import { Logo } from "@/components/ui/logo";
 
@@ -22,6 +23,7 @@ export function SiteHeader() {
           {/* The label hides on narrow screens so the header fits at 390px. */}
           <span className="hidden sm:inline">Leaderboard</span>
         </Link>
+        <PushToggle />
         {/* The user streams in, so the rest of the header and the page don't wait for the auth check. */}
         <Suspense fallback={<UserMenuSkeleton />}>
           <UserMenu />

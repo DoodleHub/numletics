@@ -1,5 +1,6 @@
 "use client";
 
+import { useOffline } from "next/offline";
 import { useActionState, useId } from "react";
 import { checkAnswer, type CheckState } from "@/app/actions";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,8 @@ export function AnswerForm({ problemId, label, solved }: { problemId: string; la
   );
   const feedbackId = useId();
   const done = state.status === "correct";
+  // While offline, a submitted answer stays pending and is sent when the connection returns.
+  const isOffline = useOffline();
 
   return (
     <form action={formAction} className="mt-auto flex flex-col gap-5 pt-8">
@@ -40,7 +43,7 @@ export function AnswerForm({ problemId, label, solved }: { problemId: string; la
         required
       />
       <Button type="submit" disabled={pending || done}>
-        {done ? "Solved" : pending ? "Checking…" : "Check answer"}
+        {done ? "Solved" : pending ? (isOffline ? "Waiting for connection…" : "Checking…") : "Check answer"}
       </Button>
       <p
         id={feedbackId}

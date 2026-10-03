@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Keeps navigations and Server Actions (answer submissions) pending while offline and retries
+    // them on reconnect. Enables useOffline() from next/offline.
+    useOffline: true,
+  },
   async headers() {
     return [
       {
