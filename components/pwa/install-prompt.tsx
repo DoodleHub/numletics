@@ -60,7 +60,7 @@ function isStandalone() {
 }
 
 // iPadOS reports itself as a Mac, so a touch-capable "Mac" counts too.
-function isIOS() {
+export function isIOS() {
   return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 }
 

@@ -40,13 +40,13 @@ Font: **Figtree** (`next/font/google`, exposed as `--font-figtree`, mapped to `f
 - Page: 77px side gutter on desktop and 16px on mobile. The card grid is `max-w-page` (1260px) wide, has two columns with a 20px gap, and stacks below `md`.
 - Card padding is 45px top, 38px sides and 34px bottom on desktop. Header-to-content gap is 50px, and input-to-button gap is 20px.
 - Vertical rhythm on desktop: about 50px between headline and cards, and about 50px between cards and footer.
-- Card borders are 1px `line`. Cards have no shadow.
+- Card borders are 1px `line`. Cards have no shadow. Dropdown menus (the profile menu) are bordered surface panels with `shadow-popover`.
 - Auth pages (`/login`, `/signup`) center a single card in `max-w-auth` (512px).
 - The leaderboard centers one card in `max-w-board` (720px). Rows are split by 1px `line` borders, and the current user's row is bold with a muted "(you)".
 
 ## Iconography
 
-Inline SVG, 24×24 viewBox, 2px round strokes, `currentColor`. They render at 44px in card headers (36px on mobile). Available icons are in `components/ui/icons.tsx`: `BookIcon`, `HeadphonesIcon`, `TrophyIcon`, `EyeIcon`, `EyeOffIcon`, `BellIcon`, `BellOffIcon`, `FlameIcon`, `ShareIcon`, `CloseIcon`, `PlayGlyph` and `StopGlyph`.
+Inline SVG, 24×24 viewBox, 2px round strokes, `currentColor`. They render at 44px in card headers (36px on mobile). Available icons are in `components/ui/icons.tsx`: `BookIcon`, `HeadphonesIcon`, `TrophyIcon`, `EyeIcon`, `EyeOffIcon`, `BellIcon`, `BellOffIcon`, `FlameIcon`, `ShareIcon`, `CloseIcon`, `UserIcon`, `SignOutIcon`, `PlayGlyph` and `StopGlyph`.
 
 ## Components (`components/ui/`)
 

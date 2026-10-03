@@ -48,6 +48,9 @@
   --radius-card: 1rem; /* 16px */
   --radius-control: 0.5rem; /* 8px */
 
+  /* Elevation */
+  --shadow-popover: 0 8px 24px rgba(15, 18, 22, 0.12); /* dropdown menus */
+
   /* Size */
   --spacing-control: 4.125rem; /* 66px — input & button height */
   --spacing-play: 7rem; /* 112px — play button diameter */

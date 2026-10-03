@@ -5,7 +5,7 @@ import { cache } from "react";
 import { isSupabaseConfigured } from "./env";
 import { createClient } from "./server";
 
-export type CurrentUser = { id: string; email: string | null };
+export type CurrentUser = { id: string; email: string | null; displayName: string | null };
 
 // getClaims() verifies the JWT, so it's safe to trust on the server. Never use getSession() for this.
 // cache() shares one check per request between the header and the page.
@@ -17,7 +17,14 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
   if (!claims) return null;
-  return { id: claims.sub, email: typeof claims.email === "string" ? claims.email : null };
+  // Sign-up stores the display name in user metadata, which the JWT carries. It's only shown back to
+  // the user; the leaderboard reads the validated copy in public.profiles.
+  const displayName = claims.user_metadata?.display_name;
+  return {
+    id: claims.sub,
+    email: typeof claims.email === "string" ? claims.email : null,
+    displayName: typeof displayName === "string" && displayName ? displayName : null,
+  };
 });
 
 // Use in pages and Server Actions that need a signed-in user. The proxy also redirects, but only optimistically.
