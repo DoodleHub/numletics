@@ -59,6 +59,24 @@
   --container-board: 45rem; /* 720px — leaderboard card width */
 }
 
+/* Full page loads crossfade, so opening the app from public/launch.html slides its logo into the header.
+   Client-side navigations are unaffected. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(*) {
+  animation-duration: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
+
 body {
   background: var(--color-canvas);
   color: var(--color-ink);

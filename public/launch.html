@@ -29,7 +29,13 @@
         color: var(--ink);
         font-family: ui-sans-serif, system-ui, sans-serif;
       }
-      .logo { display: inline-flex; align-items: center; gap: 12px; }
+      /* Crossfades into "/" and slides the logo into the header (globals.css opts the app in too). */
+      @view-transition { navigation: auto; }
+      ::view-transition-group(*) { animation-duration: 450ms; }
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none; }
+      }
+      .logo { display: inline-flex; align-items: center; gap: 12px; view-transition-name: logo; }
       .logo svg { width: 32px; height: 32px; }
       .logo span { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
       .bar {
@@ -68,7 +74,9 @@
     <div class="bar" role="status" aria-label="Loading"></div>
     <script>
       // The browser keeps this page painted until "/" starts rendering, so there's no blank gap.
-      location.replace("/");
+      // Stay up at least MIN_MS so a fast server doesn't turn the launch screen into a flash.
+      const MIN_MS = 800;
+      setTimeout(() => location.replace("/"), Math.max(0, MIN_MS - performance.now()));
     </script>
   </body>
 </html>

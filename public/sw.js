@@ -2,7 +2,7 @@
 // go to the network and fall back to /offline.html when there is none. Only build assets, icons and the
 // static pages in PRECACHE are cached. POSTs (Server Actions) and RSC requests pass straight through.
 // Bump VERSION when the precached files change.
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = `numletics-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
 const LAUNCH_URL = "/launch.html";
