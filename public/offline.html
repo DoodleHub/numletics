@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#fefdf8" />
+    <meta name="theme-color" content="#fefdf8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
     <title>Offline — Numletics</title>
     <style>
       /* Served by the service worker with no network, so it can't load the app's CSS.
@@ -15,6 +17,15 @@
         --muted: #4b4e5a;
         --line: #e5e5e6;
         --accent: #bef62e;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --canvas: #121417;
+          --surface: #1b1e23;
+          --ink: #f3f2ec;
+          --muted: #a9abb5;
+          --line: #2c3038;
+        }
       }
       * { box-sizing: border-box; }
       body {

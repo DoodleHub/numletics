@@ -36,7 +36,7 @@ app/
   (auth)/           Signed-out pages sharing one layout and loading.tsx: login, signup
   auth/             actions.ts (signIn, signUp, signOut)
   push/             actions.ts (subscribeToDailyPush, unsubscribeFromDailyPush)
-  globals.css       Design tokens (@theme), the only place colors and sizes are defined
+  globals.css       Design tokens (@theme) plus their dark values, the only place colors and sizes are defined
 components/
   ui/               Design-system primitives: Logo, Card/CardHeader, Button, TextInput, PlayButton, Skeleton, icons
   problem/          Feature components: ReadCard (server), ListenCard (client), AnswerForm (client), NextProblems (client countdown), StreakStatus, HomeIntro and card skeletons
@@ -68,7 +68,7 @@ DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
 
 - **Follow the mock and `DESIGN_SYSTEM.md`.** Style with token-backed Tailwind utilities such as `bg-canvas`, `text-ink`, `text-title`, `rounded-card` and `h-control`. Add any new color or size to `@theme` in `app/globals.css` first. Don't hard-code hex values in components.
 - Desktop values apply at `md` and above. Below `md` the cards stack and the type scales down (see the mobile column in `DESIGN_SYSTEM.md`). Layouts must work at 390px wide with no horizontal scroll.
-- The theme is light only. There are no dark-mode styles.
+- Light and dark themes follow the device setting (`prefers-color-scheme`); there is no in-app toggle. Dark values live in the `:root` block under `@theme` in `app/globals.css`. A new color token needs both values, and components should use tokens rather than `dark:` variants. Keep the copies in `public/launch.html` and `public/offline.html` in step.
 - **Never send answers to the client.** Keep `lib/problems.ts` behind `import "server-only"`, and import only its *types* (`import type`) from client components. Check answers only in `checkAnswer`.
 - **Auth checks run on the server with `getClaims()`, never `getSession()`.** Gate new pages with `requireUser()` and new Server Actions with `getCurrentUser()`. To make a page public, add it to `isPublicPath` in `lib/supabase/proxy.ts`. Supabase settings live in `.env.local` (see `.env.example`), and only the publishable key belongs there.
 - **Database changes go in a new file in `supabase/migrations/`.** Enable RLS on every table and wrap `auth.uid()` in `(select …)` in policies. Don't widen read access to `results` or `profiles`; expose other users' data only through aggregate functions like `leaderboard`.

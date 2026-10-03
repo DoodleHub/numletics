@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
-// Served at /manifest.webmanifest. Colors match --color-canvas in app/globals.css (the manifest can't read CSS).
+// Served at /manifest.webmanifest. Colors match the dark --color-canvas in app/globals.css (the manifest can't read CSS).
+// It takes one color, not one per scheme, so the OS splash before launch.html is always dark.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Numletics — Your daily math",
@@ -12,8 +13,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/launch.html",
     scope: "/",
     display: "standalone",
-    background_color: "#fefdf8",
-    theme_color: "#fefdf8",
+    background_color: "#121417",
+    theme_color: "#121417",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

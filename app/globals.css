@@ -2,7 +2,8 @@
 
 /*
  * Numletics design tokens — see DESIGN_SYSTEM.md.
- * Values are sampled from ss-mocks/main-design.png. Light theme only.
+ * Light values are sampled from ss-mocks/main-design.png. Dark values follow the device setting
+ * (prefers-color-scheme) and are redefined in the :root block below the theme.
  */
 @theme {
   /* Color */
@@ -16,6 +17,8 @@
   --color-accent: #bef62e; /* brand lime: logo, play glyph */
   --color-success: #2f7a1f;
   --color-danger: #c2362b;
+  --color-play: #0f1216; /* play button fill */
+  --color-play-glyph: #bef62e; /* play button glyph */
 
   /* Typography */
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
@@ -49,7 +52,10 @@
   --radius-control: 0.5rem; /* 8px */
 
   /* Elevation */
-  --shadow-popover: 0 8px 24px rgba(15, 18, 22, 0.12); /* dropdown menus */
+  /* The shadow color is a variable so the dark theme can deepen it (Tailwind inlines --shadow-* values). */
+  --color-shadow: rgba(15, 18, 22, 0.12);
+  --shadow-popover: 0 8px 24px var(--color-shadow); /* dropdown menus */
+  --shadow-play: 0 2px 6px var(--color-shadow); /* play button */
 
   /* Size */
   --spacing-control: 4.125rem; /* 66px — input & button height */
@@ -57,6 +63,31 @@
   --container-page: 78.75rem; /* 1260px — card grid width */
   --container-auth: 32rem; /* 512px — sign-in and sign-up card width */
   --container-board: 45rem; /* 720px — leaderboard card width */
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+/* Dark theme: same token names, so every utility switches with the device setting.
+   Keep public/launch.html and public/offline.html in step. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-canvas: #121417;
+    --color-surface: #1b1e23;
+    --color-ink: #f3f2ec;
+    --color-muted: #a9abb5;
+    --color-subtle: #80828d;
+    --color-line: #2c3038;
+    --color-line-strong: #464b55;
+    --color-success: #7ccf5a;
+    --color-danger: #f2766c;
+    /* Ink turns light, so the play button flips to a lime fill with a dark glyph. */
+    --color-play: #bef62e;
+    --color-play-glyph: #0f1216;
+
+    --color-shadow: rgba(0, 0, 0, 0.5);
+  }
 }
 
 /* Full page loads crossfade, so opening the app from public/launch.html slides its logo into the header.
