@@ -46,7 +46,7 @@ Font: **Figtree** (`next/font/google`, exposed as `--font-figtree`, mapped to `f
 
 ## Iconography
 
-Inline SVG, 24×24 viewBox, 2px round strokes, `currentColor`. They render at 44px in card headers (36px on mobile). Available icons are in `components/ui/icons.tsx`: `BookIcon`, `HeadphonesIcon`, `TrophyIcon`, `PlayGlyph` and `StopGlyph`.
+Inline SVG, 24×24 viewBox, 2px round strokes, `currentColor`. They render at 44px in card headers (36px on mobile). Available icons are in `components/ui/icons.tsx`: `BookIcon`, `HeadphonesIcon`, `TrophyIcon`, `EyeIcon`, `EyeOffIcon`, `BellIcon`, `BellOffIcon`, `FlameIcon`, `ShareIcon`, `CloseIcon`, `PlayGlyph` and `StopGlyph`.
 
 ## Components (`components/ui/`)
 
