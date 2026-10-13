@@ -72,7 +72,7 @@ DESIGN_SYSTEM.md    Tokens, type scale, spacing, component specs
 - **Never send answers to the client.** Keep `lib/problems.ts` behind `import "server-only"`, and import only its *types* (`import type`) from client components. Check answers only in `checkAnswer`.
 - **Auth checks run on the server with `getClaims()`, never `getSession()`.** Gate new pages with `requireUser()` and new Server Actions with `getCurrentUser()`. To make a page public, add it to `isPublicPath` in `lib/supabase/proxy.ts`. Supabase settings live in `.env.local` (see `.env.example`), and only the publishable key belongs there.
 - **Database changes go in a new file in `supabase/migrations/`.** Enable RLS on every table and wrap `auth.uid()` in `(select …)` in policies. Don't widen read access to `results` or `profiles`; expose other users' data only through aggregate functions like `leaderboard`.
-- Every problem needs a single numeric answer. `unit` is optional and is used only in the success message (`"%"` attaches without a space).
+- Every problem needs a single numeric answer. `unit` is optional and is used only in the success message (`"%"` attaches without a space; `"$"` prefixes the answer and shows cents, e.g. `$7.20`). Use decimals where they fit, such as prices in dollars and cents.
 - Listen problems are spoken aloud. Keep them short and easy to do as mental math, and avoid symbols or notation that TTS reads badly.
 - Problem ids must be unique across both banks, because `findProblem` searches both. Changing a bank's length reshuffles which problem falls on which day.
 - Prefer Server Components. Add `"use client"` only for state, effects or browser APIs, as in `AnswerForm` and `ListenCard`.

@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { isCorrect, parseNumericAnswer } from "@/lib/answer";
 import { getSolvedToday, recordAttempt } from "@/lib/leaderboard";
-import { findProblem, formatAnswer, getDailyMode, solvedMessage } from "@/lib/problems";
+import { findProblem, formatAnswer, formatNumber, getDailyMode, solvedMessage } from "@/lib/problems";
 import { getCurrentUser } from "@/lib/supabase/user";
 
 export type CheckState =
@@ -30,7 +30,7 @@ export async function checkAnswer(
   const mode = getDailyMode(problem.id);
   // Once today's problem is solved it stays solved, e.g. when a stale tab submits again.
   if (mode && (await getSolvedToday()).has(problem.id)) {
-    return { status: "correct", value: String(problem.answer), message: solvedMessage(problem) };
+    return { status: "correct", value: formatNumber(problem), message: solvedMessage(problem) };
   }
 
   const correct = isCorrect(value, problem.answer);

@@ -6,7 +6,7 @@ export type Problem = {
   id: string;
   text: string;
   answer: number;
-  /** Shown after a correct answer, e.g. "20 minutes". */
+  /** Shown after a correct answer, e.g. "20 minutes". "$" formats the answer as money, e.g. "$7.20". */
   unit?: string;
 };
 
@@ -14,29 +14,69 @@ export type Problem = {
 export type PublicProblem = Pick<Problem, "id" | "text">;
 
 const READ: Problem[] = [
-  { id: "r-runner-laps", text: "A runner completes 3 laps in 12 minutes. How long will 5 laps take at the same pace?", answer: 20, unit: "minutes" },
-  { id: "r-cyclist-speed", text: "A cyclist rides 45 kilometers in 1.5 hours. What is her average speed in kilometers per hour?", answer: 30, unit: "km/h" },
+  { id: "r-lap-pace", text: "A runner completes 3 laps in 12.6 minutes. How long will 5 laps take at the same pace?", answer: 21, unit: "minutes" },
+  { id: "r-cyclist-avg", text: "A cyclist rides 42.6 kilometers in 1.5 hours. What is her average speed in kilometers per hour?", answer: 28.4, unit: "km/h" },
   { id: "r-swim-lengths", text: "A pool is 25 meters long. How many lengths does a swimmer need to cover 1.5 kilometers?", answer: 60, unit: "lengths" },
-  { id: "r-free-throws", text: "A player makes 18 of 24 free throws. What percentage did she make?", answer: 75, unit: "%" },
-  { id: "r-marathon-split", text: "A marathon is about 42 kilometers. If a runner holds 5 minutes per kilometer, how many minutes will the race take?", answer: 210, unit: "minutes" },
-  { id: "r-team-points", text: "A team scores 96 points over 4 quarters. On average, how many points per quarter is that?", answer: 24, unit: "points" },
+  { id: "r-free-throw-pct", text: "A player makes 21 of 24 free throws. What percentage did she make?", answer: 87.5, unit: "%" },
+  { id: "r-marathon-pace", text: "A marathon is 42.2 kilometers. If a runner holds 4.5 minutes per kilometer, how many minutes will the race take?", answer: 189.9, unit: "minutes" },
+  { id: "r-points-avg", text: "A basketball player scores 23, 17, 31 and 26 points in four games. What is her average points per game?", answer: 24.25, unit: "points" },
   { id: "r-jump-rope", text: "Maya skips rope 120 times a minute. How many skips does she make in 2 minutes and 30 seconds?", answer: 300, unit: "skips" },
-  { id: "r-relay", text: "A 400 meter relay is split evenly between 4 runners. The team finishes in 52 seconds. What is the average time per leg in seconds?", answer: 13, unit: "seconds" },
+  { id: "r-relay-split", text: "A 4 × 100 meter relay team finishes in 38.84 seconds. What is the average time per leg in seconds?", answer: 9.71, unit: "seconds" },
   { id: "r-training-week", text: "A rower trains 45 minutes a day, 6 days a week. How many hours is that per week?", answer: 4.5, unit: "hours" },
   { id: "r-hike-climb", text: "A trail climbs 600 meters over 4 kilometers. On average, how many meters does it climb per kilometer?", answer: 150, unit: "meters" },
+  { id: "r-sprint-speed", text: "A sprinter runs 100 meters in 12.5 seconds. What is her average speed in meters per second?", answer: 8, unit: "m/s" },
+  { id: "r-long-jump-avg", text: "A long jumper's three jumps are 6.42, 6.87 and 6.51 meters. What is her average jump in meters?", answer: 6.6, unit: "meters" },
+  { id: "r-batting-avg", text: "A batter gets 27 hits in 90 at-bats. What is his batting average as a decimal?", answer: 0.3 },
+  { id: "r-goal-pct", text: "A soccer team takes 16 shots and scores 6 goals. What percentage of its shots were goals?", answer: 37.5, unit: "%" },
+  { id: "r-10k-pace", text: "A runner finishes 10 kilometers in 52 minutes and 30 seconds. What is her average pace in minutes per kilometer?", answer: 5.25, unit: "minutes" },
+  { id: "r-swim-total", text: "A swimmer's four laps take 31.2, 32.05, 31.8 and 31.95 seconds. What is her total time in seconds?", answer: 127, unit: "seconds" },
+  { id: "r-first-serves", text: "A tennis player lands 42 of 60 first serves. What percentage is that?", answer: 70, unit: "%" },
+  { id: "r-bike-distance", text: "A cyclist rides at 24.5 kilometers per hour for 2 hours and 30 minutes. How many kilometers does he ride?", answer: 61.25, unit: "km" },
+  { id: "r-high-jump", text: "A high jumper clears 1.85 meters. The bar goes up 4 centimeters each round. What height in meters is the bar after 3 more rounds?", answer: 1.97, unit: "meters" },
+  { id: "r-gym-score", text: "A gymnast gets 8.7, 9.1, 8.9 and 9.3 from four judges. What is her average score?", answer: 9, unit: "points" },
+  { id: "r-step-week", text: "Ella walks 8,400 steps a day for a week. How many steps is that in total?", answer: 58_800, unit: "steps" },
+  { id: "r-rowing-speed", text: "A rowing crew covers 2,000 meters in 6 minutes and 40 seconds. What is its average speed in meters per second?", answer: 5, unit: "m/s" },
+  { id: "r-season-wins", text: "A team wins 15 of its 24 games. What percentage of its games did it win?", answer: 62.5, unit: "%" },
+  { id: "r-climb-rate", text: "A climber scales a 12 meter wall in 1 minute and 20 seconds. How many meters per second is that?", answer: 0.15, unit: "m/s" },
+  { id: "r-ski-runs", text: "A skier drops 1,260 meters over 9 runs of equal height. How many meters is each run?", answer: 140, unit: "meters" },
+  { id: "r-swim-calories", text: "A swimmer burns 9.5 calories a minute. How many calories does a 40 minute swim burn?", answer: 380, unit: "calories" },
+  { id: "r-race-gap", text: "The winner of a 400 meter race finishes in 47.38 seconds and the runner-up in 48.05 seconds. How many seconds behind was the runner-up?", answer: 0.67, unit: "seconds" },
+  { id: "r-golf-avg", text: "A golfer shoots 72, 69, 74 and 70 over four rounds. What is her average score per round?", answer: 71.25, unit: "strokes" },
+  { id: "r-triathlon", text: "A triathlete swims 1.5 kilometers, bikes 40 kilometers and runs 10 kilometers. What is the total distance in kilometers?", answer: 51.5, unit: "km" },
+  { id: "r-field-lengths", text: "A football field is 109.7 meters long, end zones included. A player runs its length 5 times. How many meters is that?", answer: 548.5, unit: "meters" },
 ];
 
 const LISTEN: Problem[] = [
-  { id: "l-bread-discount", text: "A loaf of bread costs 4 dollars. It is 25 percent off. How many dollars do you save?", answer: 1, unit: "dollar" },
-  { id: "l-shirt-sale", text: "A shirt costs 40 dollars and is 10 percent off. What is the sale price in dollars?", answer: 36, unit: "dollars" },
-  { id: "l-apples", text: "Apples cost 2 dollars a kilo. How much do 3 kilos cost in dollars?", answer: 6, unit: "dollars" },
-  { id: "l-change", text: "You buy milk for 3 dollars and eggs for 5 dollars. You pay with a 20 dollar bill. How much change do you get?", answer: 12, unit: "dollars" },
-  { id: "l-half-price", text: "A jacket costs 50 dollars. Today it is half price. How many dollars does it cost?", answer: 25, unit: "dollars" },
-  { id: "l-tip", text: "Your lunch costs 30 dollars. You leave a 20 percent tip. How many dollars is the tip?", answer: 6, unit: "dollars" },
-  { id: "l-yogurt", text: "A pack of 6 yogurts costs 3 dollars. How many cents does one yogurt cost?", answer: 50, unit: "cents" },
-  { id: "l-oranges", text: "A bag of oranges costs 8 dollars. You buy 2 bags and get 25 percent off the total. How many dollars do you pay?", answer: 12, unit: "dollars" },
-  { id: "l-shoes", text: "A pair of shoes costs 60 dollars and is 15 percent off. How many dollars do you save?", answer: 9, unit: "dollars" },
+  { id: "l-bread-save", text: "A loaf of bread costs 4 dollars and 60 cents. It is 25 percent off. How many dollars do you save?", answer: 1.15, unit: "$" },
+  { id: "l-shirt-price", text: "A shirt costs 24 dollars and 50 cents and is 10 percent off. What is the sale price in dollars?", answer: 22.05, unit: "$" },
+  { id: "l-apples-kilo", text: "Apples cost 2 dollars and 40 cents a kilo. How many dollars do 3 kilos cost?", answer: 7.2, unit: "$" },
+  { id: "l-change-twenty", text: "You buy milk for 2 dollars and 75 cents and eggs for 4 dollars and 50 cents. You pay with a 20 dollar bill. How many dollars of change do you get?", answer: 12.75, unit: "$" },
+  { id: "l-jacket-half", text: "A jacket costs 49 dollars and 90 cents. Today it is half price. How many dollars does it cost?", answer: 24.95, unit: "$" },
+  { id: "l-lunch-tip", text: "Your lunch costs 32 dollars and 50 cents. You leave a 20 percent tip. How many dollars is the tip?", answer: 6.5, unit: "$" },
+  { id: "l-yogurt-each", text: "A pack of 6 yogurts costs 3 dollars and 90 cents. How many cents does one yogurt cost?", answer: 65, unit: "cents" },
+  { id: "l-oranges-deal", text: "A bag of oranges costs 6 dollars and 40 cents. You buy 2 bags and get 25 percent off the total. How many dollars do you pay?", answer: 9.6, unit: "$" },
+  { id: "l-shoes-save", text: "A pair of shoes costs 58 dollars and is 15 percent off. How many dollars do you save?", answer: 8.7, unit: "$" },
   { id: "l-budget", text: "Your grocery budget is 48 dollars and you spend 12 dollars. What percent of your budget did you spend?", answer: 25, unit: "%" },
+  { id: "l-coffee-four", text: "A coffee costs 3 dollars and 25 cents. How many dollars do 4 coffees cost?", answer: 13, unit: "$" },
+  { id: "l-pizza-split", text: "A pizza costs 18 dollars and 60 cents. Three friends split it evenly. How many dollars does each pay?", answer: 6.2, unit: "$" },
+  { id: "l-book-sale", text: "A book costs 15 dollars and is 20 percent off. What is the sale price in dollars?", answer: 12, unit: "$" },
+  { id: "l-sandwich-change", text: "A sandwich costs 7 dollars and 35 cents. You pay with a 10 dollar bill. How many dollars of change do you get?", answer: 2.65, unit: "$" },
+  { id: "l-movie-tickets", text: "Movie tickets cost 12 dollars and 50 cents each. How many dollars do 4 tickets cost?", answer: 50, unit: "$" },
+  { id: "l-bananas", text: "Bananas cost 60 cents each. How many dollars do 7 bananas cost?", answer: 4.2, unit: "$" },
+  { id: "l-lamp-tax", text: "A lamp costs 40 dollars. Sales tax is 5 percent. How many dollars is the tax?", answer: 2, unit: "$" },
+  { id: "l-hat-half", text: "A hat costs 23 dollars and is 50 percent off. How many dollars does it cost?", answer: 11.5, unit: "$" },
+  { id: "l-juice-box", text: "A pack of 4 juice boxes costs 5 dollars. How many dollars does one juice box cost?", answer: 1.25, unit: "$" },
+  { id: "l-ticket-rise", text: "A ticket cost 20 dollars last year. The price went up 15 percent. How many dollars does it cost now?", answer: 23, unit: "$" },
+  { id: "l-cheese-half", text: "Cheese costs 9 dollars a kilo. How many dollars does half a kilo cost?", answer: 4.5, unit: "$" },
+  { id: "l-grocery-total", text: "You buy bread for 2 dollars and 50 cents, cheese for 4 dollars and 25 cents, and grapes for 3 dollars. How many dollars do you spend?", answer: 9.75, unit: "$" },
+  { id: "l-game-save", text: "A game costs 50 dollars. You save 12 dollars. What percent did you save?", answer: 24, unit: "%" },
+  { id: "l-pen-pack", text: "Pens cost 1 dollar and 20 cents each, or 10 dollars for a pack of 10. How many dollars do you save by buying the pack?", answer: 2, unit: "$" },
+  { id: "l-dinner-tip", text: "Dinner costs 45 dollars. You leave a 10 percent tip. How many dollars is the tip?", answer: 4.5, unit: "$" },
+  { id: "l-paint-cans", text: "A can of paint costs 14 dollars and 99 cents. How many dollars do 2 cans cost?", answer: 29.98, unit: "$" },
+  { id: "l-split-bill", text: "A bill of 54 dollars is split evenly between 4 friends. How many dollars does each pay?", answer: 13.5, unit: "$" },
+  { id: "l-shampoo-coupon", text: "Shampoo costs 6 dollars and 80 cents. You have a coupon for 1 dollar and 30 cents off. How many dollars do you pay?", answer: 5.5, unit: "$" },
+  { id: "l-toy-drop", text: "A toy cost 25 dollars. Now it costs 20 dollars. By what percent did the price drop?", answer: 20, unit: "%" },
+  { id: "l-gas-fill", text: "Gas costs 3 dollars and 50 cents a gallon. How many dollars do 10 gallons cost?", answer: 35, unit: "$" },
 ];
 
 const BANKS: Record<Mode, Problem[]> = { read: READ, listen: LISTEN };
@@ -62,10 +102,17 @@ export function getDailyMode(id: string, date = new Date()): Mode | null {
   return (Object.keys(BANKS) as Mode[]).find((mode) => getDailyProblem(mode, date).id === id) ?? null;
 }
 
-/** The answer with its unit, e.g. "20 minutes" or "75%". Only for users who have solved the problem. */
+/** The bare answer as a user would type it; money always shows cents, e.g. "7.20". */
+export function formatNumber(problem: Problem): string {
+  return problem.unit === "$" ? problem.answer.toFixed(2) : String(problem.answer);
+}
+
+/** The answer with its unit, e.g. "20 minutes", "75%" or "$7.20". Only for users who have solved the problem. */
 export function formatAnswer(problem: Problem): string {
+  const number = formatNumber(problem);
+  if (problem.unit === "$") return `$${number}`;
   const unit = problem.unit ? (problem.unit === "%" ? "%" : ` ${problem.unit}`) : "";
-  return `${problem.answer}${unit}`;
+  return `${number}${unit}`;
 }
 
 /** Feedback for a problem the user solved earlier today. */
@@ -80,5 +127,5 @@ export type SolvedProblem = { answer: string; message: string };
 export function getSolvedState(id: string, solvedIds: Set<string>): SolvedProblem | undefined {
   const problem = findProblem(id);
   if (!problem || !solvedIds.has(id)) return undefined;
-  return { answer: String(problem.answer), message: solvedMessage(problem) };
+  return { answer: formatNumber(problem), message: solvedMessage(problem) };
 }
