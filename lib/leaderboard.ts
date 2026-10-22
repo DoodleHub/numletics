@@ -47,7 +47,6 @@ const toDayNumber = (day: string) => Date.parse(`${day}T00:00:00Z`) / DAY_MS;
 /**
  * Consecutive UTC days with at least one problem solved. A streak that reached yesterday is still
  * alive today until 00:00 UTC, so it counts back from today if today is solved, else from yesterday.
- * Matches the streak in the daily-push evening reminder (private.claim_due_pushes).
  */
 export async function getStreak(): Promise<Streak> {
   const supabase = await createClient();

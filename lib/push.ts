@@ -3,7 +3,7 @@ import { createClient } from "./supabase/server";
 
 /**
  * The fields of PushSubscription.toJSON() that the daily-push Edge Function needs, plus the browser's
- * IANA time zone, which decides when the morning and evening pushes arrive.
+ * IANA time zone. The zone is saved but no longer schedules anything: every push goes out at 00:00 UTC.
  */
 export type PushSubscriptionInput = { endpoint: string; keys: { p256dh: string; auth: string }; timeZone: string };
 

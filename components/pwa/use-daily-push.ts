@@ -153,8 +153,8 @@ async function disable() {
 }
 
 /**
- * This browser's daily-push subscription: a morning "today's problems are ready" and an evening
- * reminder when they're unsolved, both in the browser's local time.
+ * This browser's daily-push subscription: one "today's problems are ready" push a day, sent when
+ * the problems reset at 00:00 UTC.
  */
 export function useDailyPush() {
   const current = useSyncExternalStore(subscribe, () => state, () => initialState);
